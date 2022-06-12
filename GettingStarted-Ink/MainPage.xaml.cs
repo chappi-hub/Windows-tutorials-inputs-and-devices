@@ -29,11 +29,11 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
 // Begin "Step 2: Use InkCanvas to support basic inking"
-////using directives for inking functionality.
-//using Windows.UI.Input.Inking;
-//using Windows.UI.Input.Inking.Analysis;
-//using Windows.UI.Xaml.Shapes;
-//using Windows.Storage.Streams;
+//using directives for inking functionality.
+using Windows.UI.Input.Inking;
+using Windows.UI.Input.Inking.Analysis;
+using Windows.UI.Xaml.Shapes;
+using Windows.Storage.Streams;
 // End "Step 2: Use InkCanvas to support basic inking"
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -63,10 +63,10 @@ namespace GettingStarted_Ink
             this.InitializeComponent();
 
             // Begin "Step 3: Support inking with touch and mouse"
-            //inkCanvas.InkPresenter.InputDeviceTypes =
-            //    Windows.UI.Core.CoreInputDeviceTypes.Mouse |
-            //    Windows.UI.Core.CoreInputDeviceTypes.Touch |
-            //    Windows.UI.Core.CoreInputDeviceTypes.Pen;
+            inkCanvas.InkPresenter.InputDeviceTypes =
+                Windows.UI.Core.CoreInputDeviceTypes.Mouse |
+                Windows.UI.Core.CoreInputDeviceTypes.Touch |
+                Windows.UI.Core.CoreInputDeviceTypes.Pen;
             // End "Step 3: Support inking with touch and mouse"
 
         }

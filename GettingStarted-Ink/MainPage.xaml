@@ -69,7 +69,7 @@ THE SOFTWARE.
             <!-- End Step 6: Recognize shapes -->
             
             <!-- Begin "Step 2: Use InkCanvas to support basic inking" -->
-            <!--<InkCanvas x:Name="inkCanvas" />-->
+            <InkCanvas x:Name="inkCanvas" />
             <!-- End "Step 2: Use InkCanvas to support basic inking" -->
 
         </Grid>
