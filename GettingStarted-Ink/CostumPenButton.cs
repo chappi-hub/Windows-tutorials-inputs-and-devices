@@ -14,9 +14,10 @@ namespace GettingStarted_Ink
     internal class CostumPenButton : Button
     {
 
-        private double buttonSize = 25.0;
-        private double buttonMargin = 10.0;
-        private double borderThickness = 2.0;
+        private double buttonSize = 35.0;
+        private double buttonMargin = 15.0;
+        private double borderThickness = 3.0;
+
         private InkDrawingAttributes attribs;
         public InkCanvas Canvas { get; set; }
 
@@ -25,27 +26,41 @@ namespace GettingStarted_Ink
         public Color Color
         {
             get { return color; }
-            set { 
+            set
+            {
                 color = value;
                 this.Background = new SolidColorBrush(color);
             }
         }
 
-        private bool hasStroke = false;
+        private bool isActive;
 
-        public bool HasStroke
+        public bool IsActive
         {
-            get { return hasStroke; }
-            set { 
-                hasStroke = value;
-                if (hasStroke)
+            get { return isActive; }
+            set
+            {
+                isActive = value;
+
+                if (isActive)
                 {
-                    this.BorderThickness = new Thickness(borderThickness);
+                    UIElementCollection parentChildren = (this.Parent as StackPanel).Children;
+                    foreach (var penButton in parentChildren)
+                    {
+                        if (penButton is CostumPenButton)
+                        {
+                            if ((penButton as CostumPenButton) != this)
+                            {
+                                (penButton as CostumPenButton).IsActive = false;
+                            };
+                        }
+                    }
+
                     this.BorderBrush = new SolidColorBrush(Colors.Black);
                 }
                 else
                 {
-                    this.BorderThickness = new Thickness();
+                    this.BorderBrush = new SolidColorBrush(Color);
                 }
             }
         }
@@ -57,6 +72,9 @@ namespace GettingStarted_Ink
             this.Height = buttonSize;
             this.CornerRadius = new Windows.UI.Xaml.CornerRadius(buttonSize);
             this.Margin = new Thickness(buttonMargin);
+            this.BorderThickness = new Thickness(borderThickness);
+            this.IsActive = false;
+
 
             attribs = new InkDrawingAttributes();
             attribs.FitToCurve = true;
@@ -65,6 +83,7 @@ namespace GettingStarted_Ink
 
         public void Activate()
         {
+            IsActive = true;
             attribs.Color = Color;
             Canvas.InkPresenter.UpdateDefaultDrawingAttributes(attribs);
         }

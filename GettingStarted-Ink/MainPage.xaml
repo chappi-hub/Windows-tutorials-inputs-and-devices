@@ -25,6 +25,7 @@ THE SOFTWARE.
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:gettingstarted_ink="using:GettingStarted_Ink"
     x:Name="Main"
     mc:Ignorable="d">
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -33,11 +34,9 @@ THE SOFTWARE.
         </Grid.RowDefinitions>
 
         <StackPanel x:Name="ToolPanel" Orientation="Horizontal" Grid.Row="0">
-           <!-- Begin "Step 4: Add an ink toolbar" -->
-            <!--<InkToolbar x:Name="inkToolbar" 
-                       TargetInkCanvas="{x:Bind inkCanvas}">
-            </InkToolbar>-->
 
+            <StackPanel></StackPanel>
+            
             <gettingstarted_ink:CostumPenButton
                 x:Name="BlackPen"
                 Color="Black"
@@ -67,11 +66,10 @@ THE SOFTWARE.
             </gettingstarted_ink:CostumPenButton>
             
             <gettingstarted_ink:CostumPenButton
-                x:Name="WhitePen"
+                x:Name="Eraser"
                 Color="White"
                 Canvas="{x:Bind inkCanvas}"
-                Click="ChangeCostumPen_Click"
-                HasStroke="True">
+                Click="ChangeCostumPen_Click">
             </gettingstarted_ink:CostumPenButton>
 
             <!--End "Step 4: Add an ink toolbar" 

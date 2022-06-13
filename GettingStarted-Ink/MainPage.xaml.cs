@@ -62,6 +62,8 @@ namespace GettingStarted_Ink
         {
             this.InitializeComponent();
 
+            
+
             // Begin "Step 3: Support inking with touch and mouse"
             // TODO: Eingabe soll default nur für stift gelten, evtl zusätzlich einstellbar auch für die anderen
             //inkCanvas.InkPresenter.InputDeviceTypes =
