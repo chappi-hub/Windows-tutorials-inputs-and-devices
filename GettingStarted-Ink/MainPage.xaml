@@ -25,7 +25,10 @@ THE SOFTWARE.
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:gettingstarted_ink="using:GettingStarted_Ink"
     x:Name="Main"
     mc:Ignorable="d">
-    
+
+    <Page.Resources>
+        <BitmapImage x:Key="eraser" UriSource="/Images/eraser.png"/>
+    </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -36,21 +39,21 @@ THE SOFTWARE.
         <StackPanel x:Name="ToolPanel" Orientation="Horizontal" Grid.Row="0">
 
             <StackPanel></StackPanel>
-            
+
             <gettingstarted_ink:CostumPenButton
                 x:Name="BlackPen"
                 Color="Black"
                 Canvas="{x:Bind inkCanvas}"
                 Click="ChangeCostumPen_Click">
             </gettingstarted_ink:CostumPenButton>
-            
+
             <gettingstarted_ink:CostumPenButton
                 x:Name="RedPen"
                 Color="Red"
                 Canvas="{x:Bind inkCanvas}"
                 Click="ChangeCostumPen_Click">
             </gettingstarted_ink:CostumPenButton>
-            
+
             <gettingstarted_ink:CostumPenButton
                 x:Name="GreenPen"
                 Color="Green"
@@ -64,12 +67,16 @@ THE SOFTWARE.
                 Canvas="{x:Bind inkCanvas}"
                 Click="ChangeCostumPen_Click">
             </gettingstarted_ink:CostumPenButton>
-            
+
             <gettingstarted_ink:CostumPenButton
                 x:Name="Eraser"
                 Color="White"
                 Canvas="{x:Bind inkCanvas}"
-                Click="ChangeCostumPen_Click">
+                Click="ChangeCostumPen_Click"
+                HasIcon="True"
+                PenThickness="10.0">
+                <Image 
+                    Source="{StaticResource eraser}" Stretch="Uniform" Margin="-9,-4,-8,-5"/>
             </gettingstarted_ink:CostumPenButton>
 
             <!--End "Step 4: Add an ink toolbar" 
@@ -93,7 +100,7 @@ THE SOFTWARE.
             <!-- Begin Step 6: Recognize shapes -->
             <!--<Canvas x:Name="canvas" />-->
             <!-- End Step 6: Recognize shapes -->
-            
+
             <!-- Begin "Step 2: Use InkCanvas to support basic inking" -->
             <InkCanvas x:Name="inkCanvas" />
             <!-- End "Step 2: Use InkCanvas to support basic inking" -->
@@ -127,8 +134,8 @@ THE SOFTWARE.
                     Margin="10,10,10,10" />-->
             <!-- End "Step 6: Recognize shapes" -->
         </Grid>
-        
-        
-        
+
+
+
     </Grid>
 </Page>
