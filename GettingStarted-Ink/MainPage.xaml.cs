@@ -34,6 +34,7 @@ using Windows.UI.Input.Inking;
 using Windows.UI.Input.Inking.Analysis;
 using Windows.UI.Xaml.Shapes;
 using Windows.Storage.Streams;
+using Windows.Storage.Pickers;
 // End "Step 2: Use InkCanvas to support basic inking"
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -66,10 +67,10 @@ namespace GettingStarted_Ink
 
             // Begin "Step 3: Support inking with touch and mouse"
             // TODO: Eingabe soll default nur für stift gelten, evtl zusätzlich einstellbar auch für die anderen
-            inkCanvas.InkPresenter.InputDeviceTypes =
-                Windows.UI.Core.CoreInputDeviceTypes.Mouse |
-                Windows.UI.Core.CoreInputDeviceTypes.Touch |
-                Windows.UI.Core.CoreInputDeviceTypes.Pen;
+            //inkCanvas.InkPresenter.InputDeviceTypes =
+            //    Windows.UI.Core.CoreInputDeviceTypes.Mouse |
+            //    Windows.UI.Core.CoreInputDeviceTypes.Touch |
+            //    Windows.UI.Core.CoreInputDeviceTypes.Pen;
             // End "Step 3: Support inking with touch and mouse"
 
         }
@@ -77,6 +78,71 @@ namespace GettingStarted_Ink
         private void ChangeCostumPen_Click(object sender, RoutedEventArgs e)
         {
             (sender as CostumPenButton).Activate();
+        }
+
+        private async void Export_Click(object sender, RoutedEventArgs e)
+        {
+            // Get all strokes on the InkCanvas.
+            IReadOnlyList<InkStroke> currentStrokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
+
+            // Strokes present on ink canvas.
+            if (currentStrokes.Count > 0)
+            {
+                // Let users choose their ink file using a file picker.
+                // Initialize the picker.
+                Windows.Storage.Pickers.FileSavePicker savePicker =
+                    new Windows.Storage.Pickers.FileSavePicker();
+                savePicker.SuggestedStartLocation =
+                    Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                savePicker.FileTypeChoices.Add(
+                    "GIF with embedded ISF",
+                    new List<string>() { ".gif" });
+                savePicker.DefaultFileExtension = ".gif";
+                savePicker.SuggestedFileName = "InkSample";
+
+                // Show the file picker.
+                Windows.Storage.StorageFile file =
+                    await savePicker.PickSaveFileAsync();
+                // When chosen, picker returns a reference to the selected file.
+                if (file != null)
+                {
+                    // Prevent updates to the file until updates are 
+                    // finalized with call to CompleteUpdatesAsync.
+                    Windows.Storage.CachedFileManager.DeferUpdates(file);
+                    // Open a file stream for writing.
+                    IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
+                    // Write the ink strokes to the output stream.
+                    using (IOutputStream outputStream = stream.GetOutputStreamAt(0))
+                    {
+                        await inkCanvas.InkPresenter.StrokeContainer.SaveAsync(outputStream);
+                        await outputStream.FlushAsync();
+                    }
+                    stream.Dispose();
+
+                    // Finalize write so other apps can update file.
+                    Windows.Storage.Provider.FileUpdateStatus status =
+                        await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
+
+                    if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
+                    {
+                        // File saved.
+                    }
+                    else
+                    {
+                        // File couldn't be saved.
+                    }
+                }
+                // User selects Cancel and picker returns null.
+                else
+                {
+                    // Operation cancelled.
+                }
+            }
+        }
+
+        private void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            inkCanvas.InkPresenter.StrokeContainer.Clear();
         }
 
 

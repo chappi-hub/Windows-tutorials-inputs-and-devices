@@ -28,56 +28,85 @@ THE SOFTWARE.
 
     <Page.Resources>
         <BitmapImage x:Key="eraser" UriSource="/Images/eraser.png"/>
+        <BitmapImage x:Key="delete" UriSource="/Images/delete.png"/>
+        <BitmapImage x:Key="export" UriSource="/Images/export.png"/>
     </Page.Resources>
+
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="ToolPanel" Orientation="Horizontal" Grid.Row="0">
+        <Grid 
+            x:Name="ToolPanel" 
+            Grid.Row="0">
 
-            <StackPanel></StackPanel>
+            <StackPanel
+                x:Name="Pencils" 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Left">
 
-            <gettingstarted_ink:CostumPenButton
-                x:Name="BlackPen"
-                Color="Black"
-                Canvas="{x:Bind inkCanvas}"
-                Click="ChangeCostumPen_Click">
-            </gettingstarted_ink:CostumPenButton>
+                <gettingstarted_ink:CostumPenButton
+                    x:Name="BlackPen"
+                    Color="Black"
+                    Canvas="{x:Bind inkCanvas}"
+                    Click="ChangeCostumPen_Click">
+                </gettingstarted_ink:CostumPenButton>
 
-            <gettingstarted_ink:CostumPenButton
-                x:Name="RedPen"
-                Color="Red"
-                Canvas="{x:Bind inkCanvas}"
-                Click="ChangeCostumPen_Click">
-            </gettingstarted_ink:CostumPenButton>
+                <gettingstarted_ink:CostumPenButton
+                    x:Name="RedPen"
+                    Color="Red"
+                    Canvas="{x:Bind inkCanvas}"
+                    Click="ChangeCostumPen_Click">
+                </gettingstarted_ink:CostumPenButton>
 
-            <gettingstarted_ink:CostumPenButton
-                x:Name="GreenPen"
-                Color="Green"
-                Canvas="{x:Bind inkCanvas}"
-                Click="ChangeCostumPen_Click">
-            </gettingstarted_ink:CostumPenButton>
+                <gettingstarted_ink:CostumPenButton
+                    x:Name="GreenPen"
+                    Color="Green"
+                    Canvas="{x:Bind inkCanvas}"
+                    Click="ChangeCostumPen_Click">
+                </gettingstarted_ink:CostumPenButton>
 
-            <gettingstarted_ink:CostumPenButton
-                x:Name="BluePen"
-                Color="Blue"
-                Canvas="{x:Bind inkCanvas}"
-                Click="ChangeCostumPen_Click">
-            </gettingstarted_ink:CostumPenButton>
+                <gettingstarted_ink:CostumPenButton
+                    x:Name="BluePen"
+                    Color="Blue"
+                    Canvas="{x:Bind inkCanvas}"
+                    Click="ChangeCostumPen_Click">
+                </gettingstarted_ink:CostumPenButton>
 
-            <gettingstarted_ink:CostumPenButton
-                x:Name="Eraser"
-                Color="White"
-                Canvas="{x:Bind inkCanvas}"
-                Click="ChangeCostumPen_Click"
-                HasIcon="True"
-                PenThickness="10.0">
-                <Image 
-                    Source="{StaticResource eraser}" Stretch="Uniform" Margin="-9,-4,-8,-5"/>
-            </gettingstarted_ink:CostumPenButton>
+                <gettingstarted_ink:CostumPenButton
+                    x:Name="Eraser"
+                    Color="White"
+                    Canvas="{x:Bind inkCanvas}"
+                    Click="ChangeCostumPen_Click"
+                    HasIcon="True"
+                    PenThickness="10.0">
+                        <Image 
+                            Source="{StaticResource eraser}" 
+                            Margin="-14,-7,-14,-8" 
+                            />
+                </gettingstarted_ink:CostumPenButton>
+            </StackPanel>
+
+            <StackPanel 
+                x:Name="Options" 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Right">
+                <gettingstarted_ink:MyButton
+                    x:Name="Export"
+                    Click="Export_Click">
+                    <Image Source="{StaticResource export}" Margin="-13,-6,-13,-7" />
+                    
+                </gettingstarted_ink:MyButton>
+                <gettingstarted_ink:MyButton
+                    x:Name="Clear"
+                    Click="Clear_Click">
+                    <Image Source="{StaticResource delete}" Margin="-13,-6,-13,-7" />
+
+                </gettingstarted_ink:MyButton>
+            </StackPanel>
 
             <!--End "Step 4: Add an ink toolbar" 
              Begin "Step 7: Save and load ink" 
@@ -92,10 +121,18 @@ THE SOFTWARE.
                     Width="100"
                     Margin="5,0,0,0"/>-->
             <!-- End "Step 7: Save and load ink" -->
+        </Grid>
+
+        <StackPanel
+            x:Name="Line"
+            Grid.Row="1"
+            BorderBrush="Gray"
+            BorderThickness="10"
+            VerticalAlignment="Top"
+            Height="2">
         </StackPanel>
 
-        <Grid x:Name="drawingCanvas" Grid.Row="1">
-
+        <Grid x:Name="drawingCanvas" Grid.Row="2">
             <!-- The canvas where we draw the replacement shapes. -->
             <!-- Begin Step 6: Recognize shapes -->
             <!--<Canvas x:Name="canvas" />-->
@@ -106,36 +143,5 @@ THE SOFTWARE.
             <!-- End "Step 2: Use InkCanvas to support basic inking" -->
 
         </Grid>
-
-        <Grid Grid.Row="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <!-- Begin "Step 5: Support handwriting recognition" -->
-            <!--<Button x:Name="recognizeText" 
-                    Content="Recognize text"  
-                    Grid.Row="0" Grid.Column="0"
-                    Margin="10,10,10,10"
-                    Click="recognizeText_ClickAsync"/>
-            <TextBlock x:Name="recognitionResult" 
-                       Text="Recognition results: "
-                       VerticalAlignment="Center" 
-                       Grid.Row="0" Grid.Column="1"
-                       Margin="50,0,0,0" />-->
-            <!-- End "Step 5: Support handwriting recognition" -->
-            <!-- Begin "Step 6: Recognize shapes" -->
-            <!--<Button Grid.Row="1" x:Name="recognizeShape" Click="recognizeShape_ClickAsync"
-                    Content="Recognize shape" 
-                    Margin="10,10,10,10" />-->
-            <!-- End "Step 6: Recognize shapes" -->
-        </Grid>
-
-
-
     </Grid>
 </Page>
