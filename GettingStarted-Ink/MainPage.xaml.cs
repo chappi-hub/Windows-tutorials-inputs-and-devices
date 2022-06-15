@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //  ---------------------------------------------------------------------------------
 
+#define NOT_RUNNING_ON_SURFACE
+
 using System;
 using System.Collections.Generic;
 using Windows.UI.Xaml;
@@ -35,6 +37,11 @@ using Windows.UI.Input.Inking.Analysis;
 using Windows.UI.Xaml.Shapes;
 using Windows.Storage.Streams;
 using Windows.Storage.Pickers;
+using Windows.UI.Xaml.Media.Imaging;
+using System.Threading.Tasks;
+using System.IO;
+using Windows.Storage;
+using System.Diagnostics;
 // End "Step 2: Use InkCanvas to support basic inking"
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -46,24 +53,23 @@ namespace GettingStarted_Ink
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        // Begin "Step 5: Support handwriting recognition"
-        //InkAnalyzer analyzerText = new InkAnalyzer();
-        //IReadOnlyList<InkStroke> strokesText = null;
-        //InkAnalysisResult resultText = null;
-        //IReadOnlyList<IInkAnalysisNode> words = null;
-        // End "Step 5: Support handwriting recognition"
-
-        // Begin "Step 6: Recognize shapes"
-        //InkAnalyzer analyzerShape = new InkAnalyzer();
-        //IReadOnlyList<InkStroke> strokesShape = null;
-        //InkAnalysisResult resultShape = null;
-        // End "Step 6: Recognize shapes"
+        string persistFile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\page1.gif";
+        
 
         public MainPage()
         {
+            
+
             this.InitializeComponent();
 
 
+#if NOT_RUNNING_ON_SURFACE
+            inkCanvas.InkPresenter.InputDeviceTypes =
+                Windows.UI.Core.CoreInputDeviceTypes.Mouse |
+                Windows.UI.Core.CoreInputDeviceTypes.Touch |
+                Windows.UI.Core.CoreInputDeviceTypes.Pen;
+#endif
+            inkCanvas.InkPresenter.StrokesCollected += InkPresenter_StrokesCollected;
 
             // Begin "Step 3: Support inking with touch and mouse"
             // TODO: Eingabe soll default nur für stift gelten, evtl zusätzlich einstellbar auch für die anderen
@@ -75,6 +81,11 @@ namespace GettingStarted_Ink
 
         }
 
+        private async void InkPresenter_StrokesCollected(InkPresenter sender, InkStrokesCollectedEventArgs args)
+        {
+            await PersistCanvasContent(); 
+        }
+
         private void ChangeCostumPen_Click(object sender, RoutedEventArgs e)
         {
             (sender as CostumPenButton).Activate();
@@ -82,62 +93,103 @@ namespace GettingStarted_Ink
 
         private async void Export_Click(object sender, RoutedEventArgs e)
         {
-            // Get all strokes on the InkCanvas.
-            IReadOnlyList<InkStroke> currentStrokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
+            await PersistCanvasContent();
 
-            // Strokes present on ink canvas.
-            if (currentStrokes.Count > 0)
+            //// Get all strokes on the InkCanvas.
+            //IReadOnlyList<InkStroke> currentStrokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
+
+            //// Strokes present on ink canvas.
+            //if (currentStrokes.Count > 0)
+            //{
+            //    // Let users choose their ink file using a file picker.
+            //    // Initialize the picker.
+            //    Windows.Storage.Pickers.FileSavePicker savePicker =
+            //        new Windows.Storage.Pickers.FileSavePicker();
+            //    savePicker.SuggestedStartLocation =
+            //        Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            //    savePicker.FileTypeChoices.Add(
+            //        "GIF",
+            //        new List<string>() { ".gif" });
+            //    savePicker.DefaultFileExtension = ".gif";
+            //    savePicker.SuggestedFileName = "InkSample";
+
+            //    // Show the file picker.
+            //    Windows.Storage.StorageFile file =
+            //        await savePicker.PickSaveFileAsync();
+            //    // When chosen, picker returns a reference to the selected file.
+            //    if (file != null)
+            //    {
+            //        // Prevent updates to the file until updates are 
+            //        // finalized with call to CompleteUpdatesAsync.
+            //        Windows.Storage.CachedFileManager.DeferUpdates(file);
+            //        // Open a file stream for writing.
+            //        IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
+            //        // Write the ink strokes to the output stream.
+            //        using (IOutputStream outputStream = stream.GetOutputStreamAt(0))
+            //        {
+            //            await inkCanvas.InkPresenter.StrokeContainer.SaveAsync(outputStream);
+            //            await outputStream.FlushAsync();
+            //        }
+            //        stream.Dispose();
+
+            //        // Finalize write so other apps can update file.
+            //        Windows.Storage.Provider.FileUpdateStatus status =
+            //            await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
+
+            //        if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
+            //        {
+            //            // File saved.
+            //        }
+            //        else
+            //        {
+            //            // File couldn't be saved.
+            //        }
+            //    }
+            //    // User selects Cancel and picker returns null.
+            //    else
+            //    {
+            //        // Operation cancelled.
+            //    }
+            //}
+        }
+
+        private async Task PersistCanvasContent()
+        {
+            if (!File.Exists(persistFile))
             {
-                // Let users choose their ink file using a file picker.
-                // Initialize the picker.
-                Windows.Storage.Pickers.FileSavePicker savePicker =
-                    new Windows.Storage.Pickers.FileSavePicker();
-                savePicker.SuggestedStartLocation =
-                    Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-                savePicker.FileTypeChoices.Add(
-                    "GIF with embedded ISF",
-                    new List<string>() { ".gif" });
-                savePicker.DefaultFileExtension = ".gif";
-                savePicker.SuggestedFileName = "InkSample";
-
-                // Show the file picker.
-                Windows.Storage.StorageFile file =
-                    await savePicker.PickSaveFileAsync();
-                // When chosen, picker returns a reference to the selected file.
-                if (file != null)
-                {
-                    // Prevent updates to the file until updates are 
-                    // finalized with call to CompleteUpdatesAsync.
-                    Windows.Storage.CachedFileManager.DeferUpdates(file);
-                    // Open a file stream for writing.
-                    IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
-                    // Write the ink strokes to the output stream.
-                    using (IOutputStream outputStream = stream.GetOutputStreamAt(0))
-                    {
-                        await inkCanvas.InkPresenter.StrokeContainer.SaveAsync(outputStream);
-                        await outputStream.FlushAsync();
-                    }
-                    stream.Dispose();
-
-                    // Finalize write so other apps can update file.
-                    Windows.Storage.Provider.FileUpdateStatus status =
-                        await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
-
-                    if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
-                    {
-                        // File saved.
-                    }
-                    else
-                    {
-                        // File couldn't be saved.
-                    }
-                }
-                // User selects Cancel and picker returns null.
-                else
-                {
-                    // Operation cancelled.
-                }
+                File.Create(persistFile).Close();
             }
+
+            StorageFile file = await StorageFile.GetFileFromPathAsync(persistFile);
+
+            Windows.Storage.CachedFileManager.DeferUpdates(file);
+            IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
+            using (IOutputStream outputStream = stream.GetOutputStreamAt(0))
+            {
+                await inkCanvas.InkPresenter.StrokeContainer.SaveAsync(outputStream);
+                await outputStream.FlushAsync();
+            }
+            stream.Dispose();
+
+                await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
+        }
+
+        private async Task LoadFormerCanvasContent()
+        {
+            if (!File.Exists(persistFile)) return;
+
+            StorageFile file = await StorageFile.GetFileFromPathAsync(persistFile);
+
+            Windows.Storage.CachedFileManager.DeferUpdates(file);
+
+            IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
+            using (IInputStream inputStream = stream.GetInputStreamAt(0))
+            {
+                await inkCanvas.InkPresenter.StrokeContainer.LoadAsync(inputStream);
+            }
+            stream.Dispose();
+
+            await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e)
@@ -145,227 +197,34 @@ namespace GettingStarted_Ink
             inkCanvas.InkPresenter.StrokeContainer.Clear();
         }
 
+        private async void inkCanvas_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadFormerCanvasContent();
 
+        }
 
-        // Begin "Step 5: Support handwriting recognition"
-        //private async void recognizeText_ClickAsync(object sender, RoutedEventArgs e)
-        //{
-        //    strokesText = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
-        //    // Ensure an ink stroke is present.
-        //    if (strokesText.Count > 0)
-        //    {
-        //        analyzerText.AddDataForStrokes(strokesText);
+        private async void inkCanvas_ManipulationCompleted(object sender, Windows.UI.Xaml.Input.ManipulationCompletedRoutedEventArgs e)
+        {
+            StorageFile file = await StorageFile.GetFileFromPathAsync(persistFile);
 
-        //        // Force analyzer to process strokes as handwriting.
-        //        foreach (var stroke in strokesText)
-        //        {
-        //            analyzerText.SetStrokeDataKind(stroke.Id, InkAnalysisStrokeKind.Writing);
-        //        }
+            Windows.Storage.CachedFileManager.DeferUpdates(file);
+            // Open a file stream for writing.
+            IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
+            // Write the ink strokes to the output stream.
+            using (IOutputStream outputStream = stream.GetOutputStreamAt(0))
+            {
+                await inkCanvas.InkPresenter.StrokeContainer.SaveAsync(outputStream);
+                await outputStream.FlushAsync();
+            }
+            stream.Dispose();
 
-        //        // Clear recognition results string.
-        //        recognitionResult.Text = "";
+            // Finalize write so other apps can update file.
+            Windows.Storage.Provider.FileUpdateStatus status =
+                await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
+        }
 
-        //        resultText = await analyzerText.AnalyzeAsync();
-
-        //        if (resultText.Status == InkAnalysisStatus.Updated)
-        //        {
-        //            var text = analyzerText.AnalysisRoot.RecognizedText;
-        //            words = analyzerText.AnalysisRoot.FindNodes(InkAnalysisNodeKind.InkWord);
-        //            foreach (var word in words)
-        //            {
-        //                InkAnalysisInkWord concreteWord = (InkAnalysisInkWord)word;
-        //                foreach (string s in concreteWord.TextAlternates)
-        //                {
-        //                    recognitionResult.Text += s + " ";
-        //                }
-        //                recognitionResult.Text += " / ";
-        //            }
-        //        }
-        //        analyzerText.ClearDataForAllStrokes();
-        //    }
-        //}
-        // End "Step 5: Support handwriting recognition"
-
-        // Begin "Step 6: Recognize shapes"
-        //private async void recognizeShape_ClickAsync(object sender, RoutedEventArgs e)
-        //{
-        //    strokesShape = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
-
-        //    if (strokesShape.Count > 0)
-        //    {
-        //        analyzerShape.AddDataForStrokes(strokesShape);
-
-        //        resultShape = await analyzerShape.AnalyzeAsync();
-
-        //        if (resultShape.Status == InkAnalysisStatus.Updated)
-        //        {
-        //            var drawings = analyzerShape.AnalysisRoot.FindNodes(InkAnalysisNodeKind.InkDrawing);
-
-        //            foreach (var drawing in drawings)
-        //            {
-        //                var shape = (InkAnalysisInkDrawing)drawing;
-        //                if (shape.DrawingKind == InkAnalysisDrawingKind.Drawing)
-        //                {
-        //                    // Catch and process unsupported shapes (lines and so on) here.
-        //                }
-        //                else
-        //                {
-        //                    // Process recognized shapes here.
-        //                    if (shape.DrawingKind == InkAnalysisDrawingKind.Circle || shape.DrawingKind == InkAnalysisDrawingKind.Ellipse)
-        //                    {
-        //                        DrawEllipse(shape);
-        //                    }
-        //                    else
-        //                    {
-        //                        DrawPolygon(shape);
-        //                    }
-        //                    foreach (var strokeId in shape.GetStrokeIds())
-        //                    {
-        //                        var stroke = inkCanvas.InkPresenter.StrokeContainer.GetStrokeById(strokeId);
-        //                        stroke.Selected = true;
-        //                    }
-        //                }
-        //                analyzerShape.RemoveDataForStrokes(shape.GetStrokeIds());
-        //            }
-        //            inkCanvas.InkPresenter.StrokeContainer.DeleteSelected();
-        //        }
-        //    }
-        //}
-
-        //private void DrawEllipse(InkAnalysisInkDrawing shape)
-        //{
-        //    var points = shape.Points;
-        //    Ellipse ellipse = new Ellipse();
-        //    ellipse.Width = Math.Sqrt((points[0].X - points[2].X) * (points[0].X - points[2].X) +
-        //         (points[0].Y - points[2].Y) * (points[0].Y - points[2].Y));
-        //    ellipse.Height = Math.Sqrt((points[1].X - points[3].X) * (points[1].X - points[3].X) +
-        //         (points[1].Y - points[3].Y) * (points[1].Y - points[3].Y));
-
-        //    var rotAngle = Math.Atan2(points[2].Y - points[0].Y, points[2].X - points[0].X);
-        //    RotateTransform rotateTransform = new RotateTransform();
-        //    rotateTransform.Angle = rotAngle * 180 / Math.PI;
-        //    rotateTransform.CenterX = ellipse.Width / 2.0;
-        //    rotateTransform.CenterY = ellipse.Height / 2.0;
-
-        //    TranslateTransform translateTransform = new TranslateTransform();
-        //    translateTransform.X = shape.Center.X - ellipse.Width / 2.0;
-        //    translateTransform.Y = shape.Center.Y - ellipse.Height / 2.0;
-
-        //    TransformGroup transformGroup = new TransformGroup();
-        //    transformGroup.Children.Add(rotateTransform);
-        //    transformGroup.Children.Add(translateTransform);
-        //    ellipse.RenderTransform = transformGroup;
-
-        //    var brush = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 0, 0, 255));
-        //    ellipse.Stroke = brush;
-        //    ellipse.StrokeThickness = 2;
-        //    canvas.Children.Add(ellipse);
-        //}
-
-        //private void DrawPolygon(InkAnalysisInkDrawing shape)
-        //{
-        //    var points = shape.Points;
-        //    Polygon polygon = new Polygon();
-
-        //    foreach (var point in points)
-        //    {
-        //        polygon.Points.Add(point);
-        //    }
-
-        //    var brush = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 0, 0, 255));
-        //    polygon.Stroke = brush;
-        //    polygon.StrokeThickness = 2;
-        //    canvas.Children.Add(polygon);
-        //}
-        // End "Step 6: Recognize shapes"
-
-        // Begin "Step 7: Save and load ink"
-        //private async void buttonSave_ClickAsync(object sender, RoutedEventArgs e)
-        //{
-        //    // Get all strokes on the InkCanvas.
-        //    IReadOnlyList<InkStroke> currentStrokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
-
-        //    if (currentStrokes.Count > 0)
-        //    {
-        //        // Use a file picker to identify ink file.
-        //        Windows.Storage.Pickers.FileSavePicker savePicker =
-        //            new Windows.Storage.Pickers.FileSavePicker();
-        //        savePicker.SuggestedStartLocation =
-        //            Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-        //        savePicker.FileTypeChoices.Add(
-        //            "GIF with embedded ISF",
-        //            new List<string>() { ".gif" });
-        //        savePicker.DefaultFileExtension = ".gif";
-        //        savePicker.SuggestedFileName = "InkSample";
-
-        //        // Show the file picker.
-        //        Windows.Storage.StorageFile file =
-        //            await savePicker.PickSaveFileAsync();
-        //        // When selected, picker returns a reference to the file.
-        //        if (file != null)
-        //        {
-        //            // Prevent updates to the file until updates are 
-        //            // finalized with call to CompleteUpdatesAsync.
-        //            Windows.Storage.CachedFileManager.DeferUpdates(file);
-        //            // Open a file stream for writing.
-        //            IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
-        //            // Write the ink strokes to the output stream.
-        //            using (IOutputStream outputStream = stream.GetOutputStreamAt(0))
-        //            {
-        //                await inkCanvas.InkPresenter.StrokeContainer.SaveAsync(outputStream);
-        //                await outputStream.FlushAsync();
-        //            }
-        //            stream.Dispose();
-
-        //            // Finalize write so other apps can update file.
-        //            Windows.Storage.Provider.FileUpdateStatus status =
-        //                await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
-
-        //            if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
-        //            {
-        //                // File saved.
-        //            }
-        //            else
-        //            {
-        //                // File couldn't be saved.
-        //            }
-        //        }
-        //        // User selects Cancel and picker returns null.
-        //        else
-        //        {
-        //            // Operation cancelled.
-        //        }
-        //    }
-        //}
-
-        //private async void buttonLoad_ClickAsync(object sender, RoutedEventArgs e)
-        //{
-        //    // Use a file picker to identify ink file.
-        //    Windows.Storage.Pickers.FileOpenPicker openPicker =
-        //        new Windows.Storage.Pickers.FileOpenPicker();
-        //    openPicker.SuggestedStartLocation =
-        //        Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-        //    openPicker.FileTypeFilter.Add(".gif");
-        //    // Show the file picker.
-        //    Windows.Storage.StorageFile file = await openPicker.PickSingleFileAsync();
-        //    // When selected, picker returns a reference to the file.
-        //    if (file != null)
-        //    {
-        //        // Open a file stream for reading.
-        //        IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
-        //        // Read from file.
-        //        using (var inputStream = stream.GetInputStreamAt(0))
-        //        {
-        //            await inkCanvas.InkPresenter.StrokeContainer.LoadAsync(inputStream);
-        //        }
-        //        stream.Dispose();
-        //    }
-        //    // User selects Cancel and picker returns null.
-        //    else
-        //    {
-        //        // Operation cancelled.
-        //    }
-        //}
-        // End "Step 7: Save and load ink"
+        private void inkCanvas_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+        }
     }
 }

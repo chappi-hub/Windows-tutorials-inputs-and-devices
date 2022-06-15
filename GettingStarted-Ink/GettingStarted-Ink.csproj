@@ -104,6 +104,9 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\persist.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\delete.png" />
     <Content Include="Images\eraser.png" />
     <Content Include="Images\export.png" />

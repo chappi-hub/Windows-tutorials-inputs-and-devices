@@ -27,6 +27,7 @@ THE SOFTWARE.
     mc:Ignorable="d">
 
     <Page.Resources>
+        <Image x:Key="persist" Source="/Assets/.gif"/>
         <BitmapImage x:Key="eraser" UriSource="/Images/eraser.png"/>
         <BitmapImage x:Key="delete" UriSource="/Images/delete.png"/>
         <BitmapImage x:Key="export" UriSource="/Images/export.png"/>
@@ -139,7 +140,10 @@ THE SOFTWARE.
             <!-- End Step 6: Recognize shapes -->
 
             <!-- Begin "Step 2: Use InkCanvas to support basic inking" -->
-            <InkCanvas x:Name="inkCanvas" />
+            <InkCanvas 
+                x:Name="inkCanvas" 
+                Loaded="inkCanvas_Loaded" 
+                ManipulationCompleted="inkCanvas_ManipulationCompleted" PointerExited="inkCanvas_PointerExited"/>
             <!-- End "Step 2: Use InkCanvas to support basic inking" -->
 
         </Grid>
