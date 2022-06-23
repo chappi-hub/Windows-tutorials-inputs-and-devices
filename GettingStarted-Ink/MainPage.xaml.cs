@@ -22,7 +22,7 @@
 //  THE SOFTWARE.
 //  ---------------------------------------------------------------------------------
 
-#define NOT_RUNNING_ON_SURFACE
+//#define NOT_RUNNING_ON_SURFACE
 
 using System;
 using System.Collections.Generic;
@@ -54,7 +54,6 @@ namespace GettingStarted_Ink
     public sealed partial class MainPage : Page
     {
         string persistFile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\page1.gif";
-        
 
         public MainPage()
         {
@@ -69,7 +68,6 @@ namespace GettingStarted_Ink
                 Windows.UI.Core.CoreInputDeviceTypes.Touch |
                 Windows.UI.Core.CoreInputDeviceTypes.Pen;
 #endif
-            inkCanvas.InkPresenter.StrokesCollected += InkPresenter_StrokesCollected;
 
             // Begin "Step 3: Support inking with touch and mouse"
             // TODO: Eingabe soll default nur für stift gelten, evtl zusätzlich einstellbar auch für die anderen
@@ -81,11 +79,6 @@ namespace GettingStarted_Ink
 
         }
 
-        private async void InkPresenter_StrokesCollected(InkPresenter sender, InkStrokesCollectedEventArgs args)
-        {
-            await PersistCanvasContent(); 
-        }
-
         private void ChangeCostumPen_Click(object sender, RoutedEventArgs e)
         {
             (sender as CostumPenButton).Activate();
@@ -93,64 +86,8 @@ namespace GettingStarted_Ink
 
         private async void Export_Click(object sender, RoutedEventArgs e)
         {
+            // TODO: Bilder aus InkCanvas collection erstellen
             await PersistCanvasContent();
-
-            //// Get all strokes on the InkCanvas.
-            //IReadOnlyList<InkStroke> currentStrokes = inkCanvas.InkPresenter.StrokeContainer.GetStrokes();
-
-            //// Strokes present on ink canvas.
-            //if (currentStrokes.Count > 0)
-            //{
-            //    // Let users choose their ink file using a file picker.
-            //    // Initialize the picker.
-            //    Windows.Storage.Pickers.FileSavePicker savePicker =
-            //        new Windows.Storage.Pickers.FileSavePicker();
-            //    savePicker.SuggestedStartLocation =
-            //        Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-            //    savePicker.FileTypeChoices.Add(
-            //        "GIF",
-            //        new List<string>() { ".gif" });
-            //    savePicker.DefaultFileExtension = ".gif";
-            //    savePicker.SuggestedFileName = "InkSample";
-
-            //    // Show the file picker.
-            //    Windows.Storage.StorageFile file =
-            //        await savePicker.PickSaveFileAsync();
-            //    // When chosen, picker returns a reference to the selected file.
-            //    if (file != null)
-            //    {
-            //        // Prevent updates to the file until updates are 
-            //        // finalized with call to CompleteUpdatesAsync.
-            //        Windows.Storage.CachedFileManager.DeferUpdates(file);
-            //        // Open a file stream for writing.
-            //        IRandomAccessStream stream = await file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
-            //        // Write the ink strokes to the output stream.
-            //        using (IOutputStream outputStream = stream.GetOutputStreamAt(0))
-            //        {
-            //            await inkCanvas.InkPresenter.StrokeContainer.SaveAsync(outputStream);
-            //            await outputStream.FlushAsync();
-            //        }
-            //        stream.Dispose();
-
-            //        // Finalize write so other apps can update file.
-            //        Windows.Storage.Provider.FileUpdateStatus status =
-            //            await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
-
-            //        if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
-            //        {
-            //            // File saved.
-            //        }
-            //        else
-            //        {
-            //            // File couldn't be saved.
-            //        }
-            //    }
-            //    // User selects Cancel and picker returns null.
-            //    else
-            //    {
-            //        // Operation cancelled.
-            //    }
-            //}
         }
 
         private async Task PersistCanvasContent()
